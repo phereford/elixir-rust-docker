@@ -1,8 +1,8 @@
-FROM erlang:20.1
+FROM erlang:22.2.3
 
-ENV ELIXIR_VERSION="v1.6.5"
-ENV RUST_VERSION="1.26.0"
-ENV NODE_VERSION="8.x"
+ENV ELIXIR_VERSION="v1.9.4"
+ENV RUST_VERSION="1.40.0"
+ENV NODE_VERSION="11.6.0"
 ENV LANG="C.UTF-8"
 
 RUN apt-get update && \
@@ -18,9 +18,9 @@ RUN apt-get update && \
 # Install Elixir
 RUN set -xe \
     && ELIXIR_DOWNLOAD_URL="https://github.com/elixir-lang/elixir/archive/${ELIXIR_VERSION}.tar.gz" \
-    && ELIXIR_DOWNLOAD_SHA256="defe2bed953ee729addf1121db3fa42a618ef1d6c57a1f489da03b0e7a626e89" \
+    && ELIXIR_DOWNLOAD_SHA256="f86170bde3b3ad3d1365f34f77ab9cb424c4638a4067fd7d509787c03dea0d40061ef1a2c8d1d9e42bec65b8cda8c1bf32801e4712531eeaef50e0cd53ac2369" \
     && curl -fSL -o elixir-src.tar.gz $ELIXIR_DOWNLOAD_URL \
-    && echo "$ELIXIR_DOWNLOAD_SHA256  elixir-src.tar.gz" | sha256sum -c - \
+    && echo "$ELIXIR_DOWNLOAD_SHA256  elixir-src.tar.gz" | sha512sum -c - \
     && mkdir -p /usr/local/src/elixir \
     && tar -xzC /usr/local/src/elixir --strip-components=1 -f elixir-src.tar.gz \
     && rm elixir-src.tar.gz \
@@ -45,19 +45,3 @@ RUN curl -sL $NODE_DOWNLOAD_URL | bash - \
 
 # Install Docker
 RUN curl -fsSL "https://get.docker.com" | sh
-
-# Install AWS CLI
-RUN apt-get update \
-    && apt-get -y install python-pip python-dev build-essential \
-    && pip install --upgrade pip \
-    && pip install --upgrade awscli
-
-# Install Google Cloud SDK
-# 1. Add the Cloud SDK distribution URI as a package source
-# 2. Import the Google Cloud Platform public key
-# 3. Update the package list and install the Cloud SDK
-RUN echo "deb http://packages.cloud.google.com/apt cloud-sdk-$(lsb_release -c -s) main" | tee -a /etc/apt/sources.list.d/google-cloud-sdk.list \
-    && curl https://packages.cloud.google.com/apt/doc/apt-key.gpg | apt-key add - \
-    && apt-get update \
-    && apt-get -y install google-cloud-sdk \
-    && apt-get -y install kubectl
